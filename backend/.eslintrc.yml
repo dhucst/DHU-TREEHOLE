@@ -1,0 +1,7 @@
+extends: airbnb-base
+rules:
+  no-underscore-dangle: ["error", { "allow": ["_id"] }]
+  no-shadow: ["warn", {"allow": ["err"]}]
+  prefer-destructuring: "off"
+  no-param-reassign: "off"
+  no-unused-vars: ["warn", {"allow": ["next"]}]
