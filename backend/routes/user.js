@@ -70,6 +70,44 @@ router.post('/signup', (req, res) => {
   });
 });
 
+router.post('/login', (req, res) => {
+  User.findOne({ stdId: req.body.stdId }, (err, user) => {
+    if (err || !user) {
+      res.status(403);
+      res.json({
+        success: false,
+        msg: '学号或密码错误',
+        token: null,
+      });
+      return;
+    }
+    bcrypt.compare(req.body.password, user.password, (err, flag) => {
+      if (err || !flag) {
+        res.status(403);
+        res.json({
+          success: false,
+          msg: '学号或密码错误',
+          token: null,
+        });
+      } else {
+        const tmp = {
+          _id: user._id,
+          stdId: user.stdId,
+        };
+        jwt.sign(tmp, process.env.superSecret, {
+          expiresIn: 60 * 60 * 24,
+        }, (err, token) => {
+          res.json({
+            success: true,
+            msg: 'success',
+            token,
+          });
+        });
+      }
+    })
+  })
+});
+
 router.all('*', (req, res) => {
   res.status(404);
   res.json({
