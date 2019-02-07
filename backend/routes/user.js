@@ -111,7 +111,7 @@ router.post('/login', (req, res) => {
 router.all('*', (req, res) => {
   res.status(404);
   res.json({
-    msg: 'No found.',
+    msg: 'Not found.',
   });
 });
 

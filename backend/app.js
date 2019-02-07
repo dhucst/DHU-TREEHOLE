@@ -1,8 +1,9 @@
 require('dotenv').config();
-const express = require('express');
-const path = require('path');
 require('serve-favicon');
 require('./lib/database');
+require('./lib/oss');
+const express = require('express');
+const path = require('path');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -10,6 +11,7 @@ const bodyParser = require('body-parser');
 const index = require('./routes/index');
 const userRouter = require('./routes/user');
 const users = require('./routes/users');
+const profileRouter = require('./routes/profile');
 
 const app = express();
 
@@ -30,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/user', userRouter);
+app.use('/profile', profileRouter);
 app.use('/users', users);
 
 // catch 404 and forward to error handler

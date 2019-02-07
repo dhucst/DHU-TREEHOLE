@@ -11,6 +11,7 @@ exports.UserSchema = new Schema({
   stdId: String,
   nickname: String,
   email: String,
+  avatar: String,
   verified: Boolean,
   password: String,
   posts: [String],
