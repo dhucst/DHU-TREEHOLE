@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/users').User;
 const ifStdIdEmailValid = require('../models/users').ifStdIdEmailValid;
+const sendVerifyEmailForSignUp = require('../lib/email').sendVerifyEmailForSignUp;
+const sendVerifyEmailForFindPwd = require('../lib/email').sendVerifyEmailForFindPwd;
 
 const router = express.Router();
 
@@ -41,6 +43,7 @@ router.post('/signup', (req, res) => {
           email: req.body.email.toLocaleLowerCase(),
           password: encoded,
           ip: req.ip,
+          verified: false,
         });
         user.save((err) => {
           if (err) {
@@ -55,7 +58,9 @@ router.post('/signup', (req, res) => {
           const tmp = {
             _id: user._id,
             stdId: user.stdId,
+            email: user.email,
           };
+          sendVerifyEmailForSignUp(tmp);
           jwt.sign(tmp, process.env.superSecret, {
             expiresIn: 60 * 60 * 24,
           }, (err, token) => {
@@ -110,6 +115,33 @@ router.post('/login', (req, res) => {
       }
     })
   })
+});
+
+router.post('/findpwd', (req, res) => {
+  User.findOne({ stdId: req.body.stdId }, (err, user, next) => {
+    if (err || !user) {
+      next();
+      return;
+    }
+    if (!user.verified || (req.body.email !== user.email)) {
+      res.status(403);
+      res.json({
+        success: false,
+        msg: 'email地址有误或不存在',
+      });
+      return;
+    }
+    const tmp = {
+      _id: user._id,
+      stdId: user.stdId,
+      email: user.email,
+    };
+    sendVerifyEmailForFindPwd(tmp);
+    res.json({
+      success: true,
+      msg: '邮件已发送。'
+    });
+  });
 });
 
 router.all('*', (req, res) => {

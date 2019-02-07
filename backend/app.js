@@ -2,6 +2,7 @@ require('dotenv').config();
 require('serve-favicon');
 require('./lib/database');
 require('./lib/oss');
+require('./lib/email');
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
