@@ -3,15 +3,24 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "debug": "SET DEBUG=express-server:* &&node ./bin/www",
+    "start": "node ./app.js"
   },
   "dependencies": {
+    "ali-oss": "^6.1.0",
+    "bcryptjs": "^2.4.3",
     "body-parser": "~1.18.2",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
-    "express": "~4.15.5",
+    "dotenv": "^6.2.0",
+    "express": "~4.16.0",
+    "express-jwt": "^5.3.1",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^8.4.0",
+    "mongoose": "^5.4.9",
     "morgan": "~1.9.0",
+    "multer": "^1.4.1",
+    "nodemailer": "^5.1.1",
     "serve-favicon": "~2.4.5"
   }
 }
