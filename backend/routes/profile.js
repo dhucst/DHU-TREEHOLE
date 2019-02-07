@@ -10,7 +10,8 @@ const router = express.Router();
 
 router.use(upload.single('avatar'));
 
-router.put('/:stdId', (req, res, next) => {
+router.route('/:stdId')
+  .put((req, res, next) => {
   User.findOne({ stdId: req.params.stdId}, (err, user) => {
     if (err || !user) {
       next();
@@ -46,7 +47,23 @@ router.put('/:stdId', (req, res, next) => {
       });
     });
   });
-});
+})
+  .get((req, res, next) => {
+    User.findOne({stdId: req.params.stdId}, (err, user) => {
+      if (err || !user) {
+        next();
+        return;
+      }
+      res.json({
+        nickname: user.nickname,
+        email: user.email,
+        avatar: user.avatar,
+        posts: user.posts.length,
+        lastLogin: user.lastLogin,
+        ip: user.ip,
+      });
+    });
+  });
 
 router.all('*', (req, res) => {
   res.status(404);

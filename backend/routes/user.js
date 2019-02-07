@@ -40,6 +40,7 @@ router.post('/signup', (req, res) => {
           stdId: req.body.stdId,
           email: req.body.email.toLocaleLowerCase(),
           password: encoded,
+          ip: req.ip,
         });
         user.save((err) => {
           if (err) {
@@ -94,9 +95,12 @@ router.post('/login', (req, res) => {
           _id: user._id,
           stdId: user.stdId,
         };
+        user.ip = req.ip;
+        user.lastLogin = new Date().getTime();
         jwt.sign(tmp, process.env.superSecret, {
           expiresIn: 60 * 60 * 24,
         }, (err, token) => {
+          user.save();
           res.json({
             success: true,
             msg: 'success',
