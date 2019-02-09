@@ -19,6 +19,40 @@ exports.UserSchema = new Schema({
   ip: String,
 });
 
+exports.PostSchema = new Schema({
+  owner: String,
+  createTime: Number,
+  updateTime: Number,
+  content: String,
+  pictures: [String],
+  approves: [String],
+  comments: [String],
+  background: String,
+  isAnonymous: Boolean,
+});
+
+exports.CommentSchema = new Schema({
+  owner: String,
+  createTime: Number,
+  content: String,
+  post: String,
+  replyTo: String,
+  isAnonymous: Boolean,
+});
+
+exports.FakerSchema = new Schema({
+  post: String,
+  owner: String,
+  fakeName: String,
+});
+
+exports.PictureSchema = new Schema({
+  createTime: Number,
+  url: String,
+  type: String,
+  MD5: String,
+});
+
 mongoose.connection.on('connected', () => {
   console.log(`Mongoose connection open to ${DB_URL}`);
 });
