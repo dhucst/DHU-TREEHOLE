@@ -134,6 +134,48 @@ router.route('/:postId')
     });
   });
 
+router.get('/:postId/isApprove', (req, res, next) => {
+  Post.findById(req.params.postId, (err, post) => {
+    if (err || !post){
+      next();
+      return;
+    }
+    if (post.approves.includes(req.user._id)) res.json({
+      success: true,
+      approved: true,
+    });
+    else res.json({
+      success: true,
+      approved: false,
+    });
+  });
+});
+
+router.put('/:postId/approve', (req, res, next) => {
+  Post.findById(req.params.postId, (err, post) => {
+    if (err || !post){
+      next();
+      return;
+    }
+    if (!post.approves.includes(req.user._id)) post.approves.push(req.user._id);
+    else post.approves.remove(req.user._id);
+    post.save((err) => {
+      if (err) {
+        res.status(500);
+        res.json({
+          success: false,
+          approved: !post.approves.includes(req.user._id),
+        });
+        return;
+      }
+      res.json({
+        success: true,
+        approved: post.approves.includes(req.user._id),
+      });
+    });
+  });
+});
+
 router.all('*', (req, res) => {
   res.status(404);
   res.json({
