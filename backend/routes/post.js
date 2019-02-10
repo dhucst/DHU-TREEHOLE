@@ -108,6 +108,30 @@ router.route('/:postId')
           });
       });
     });
+  })
+  .get((req, res, next) => {
+    Post.findById(req.params.postId, (err, post) => {
+      if (err || !post){
+        next();
+        return;
+      }
+      const tmp = {
+        owner: post.owner,
+        createTime: post.createTime,
+        updateTime: post.updateTime,
+        content: post.content,
+        pictures: post.pictures,
+        approves: post.approves.length > 5 ? post.approves.slice(0, 5) : post.approves,
+        approvesNum: post.approves.length,
+        comments: post.comments.length > 3 ? post.comments.slice(0, 3) : post.comments,
+        commentsNum: post.comments.length,
+        background: post.background,
+      };
+      res.json({
+        success: true,
+        msg: tmp,
+      });
+    });
   });
 
 router.all('*', (req, res) => {
