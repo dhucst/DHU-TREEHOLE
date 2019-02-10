@@ -49,8 +49,10 @@ exports.FakerSchema = new Schema({
 exports.PictureSchema = new Schema({
   createTime: Number,
   url: String,
+  format: String,
   type: String,
-  MD5: String,
+  hash: String,
+  ref: Number,
 });
 
 mongoose.connection.on('connected', () => {
