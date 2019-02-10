@@ -75,6 +75,39 @@ router.route('/:postId')
         });
       });
     });
+  })
+  .put((req, res, next) => {
+    Post.findById(req.params.postId, (err, post) => {
+      if (err || !post){
+        next();
+        return;
+      }
+      if (req.user._id !== post.owner) {
+        res.status(403);
+        res.json({
+          success: false,
+          msg: 'Forbidden',
+        });
+        return;
+      }
+      post.updateTime = new Date().getTime();
+      post.content = req.body.content;
+      post.pictures = req.body.pictures;
+      post.save((err) => {
+        if (err) {
+            res.status(500);
+            res.json({
+              success: false,
+              msg: 'Server errors',
+            });
+            return;
+          }
+          res.json({
+            success: true,
+            msg: 'Updated!',
+          });
+      });
+    });
   });
 
 router.all('*', (req, res) => {
