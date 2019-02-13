@@ -108,4 +108,37 @@ router.post('/:commentId/reply', (req, res, next) => {
   });
 });
 
+router.route('/:commentId')
+  .delete((req, res, next) => {
+    Commernt.findById(req.params.commentId, (err, comment) => {
+      if (err || !comment) {
+        next();
+        return;
+      }
+      if (req.user._id !== comment.owner) {
+        res.status(403);
+        res.json({
+          success: false,
+          msg: 'Forbidden',
+        });
+        return;
+      }
+      comment.isDeleted = true;
+      comment.save((err) => {
+        if (err) {
+          res.status(500);
+          res.json({
+            success: false,
+            msg: 'Server errors',
+          });
+        } else {
+          res.json({
+            success: true,
+            msg: "Success",
+          });
+        }
+      })
+    });
+  });
+
 module.exports = router;
