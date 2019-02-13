@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Commernt = require('../models/comments').Comment;
 const Post = require('../models/posts').Post;
+const Reply = require('../models/replies').Reply;
 
 router.all('*', (req, res, next) => {
   if (req.user === 'Anonymous') {
@@ -47,6 +48,53 @@ router.post('/new', (req, res, next) => {
             res.json({
               success: false,
               msg: "Server Errors.",
+            });
+          } else {
+            res.json({
+              success: true,
+              msg: "Success",
+            });
+          }
+        });
+      }
+    });
+  });
+});
+
+router.post('/:commentId/reply', (req, res, next) => {
+  Commernt.findById(req.params.commentId, (err, comment) => {
+    if (err || !comment) {
+
+      next();
+      return;
+    }
+    const time = new Date().getTime();
+    const reply = Reply({
+      owner: req.user._id,
+      createTime: time,
+      post: comment.post,
+      comment: comment._id,
+      content: req.body.content,
+      replyTo: req.body.replyTo,
+      isPrivate: req.body.isPrivate,
+      isAnonymous: req.body.isAnonymous,
+      isDeleted: false,
+    });
+    comment.replies.push(reply._id);
+    reply.save((err) => {
+      if (err) {
+        res.status(500);
+        res.json({
+          success: false,
+          msg: 'Server errors',
+        });
+      } else {
+        comment.save((err) => {
+          if (err) {
+            res.status(500);
+            res.json({
+              success: false,
+              msg: 'Server errors',
             });
           } else {
             res.json({
