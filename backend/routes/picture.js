@@ -13,6 +13,18 @@ const upload = multer({ dest: './static/temp' });
 router.use(upload.single('picture'));
 
 router.all('*', (req, res, next) => {
+  if (req.user === 'Anonymous') {
+    res.status(403);
+    res.json({
+      success: false,
+      msg: 'Forbidden',
+    });
+    return;
+  }
+  next();
+});
+
+router.all('*', (req, res, next) => {
   if (req.file)  {
     computeHash(req.file.path, (err, hash) => {
       if (err) {

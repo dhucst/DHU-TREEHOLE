@@ -42,6 +42,7 @@ router.post('/signup', (req, res) => {
           stdId: req.body.stdId,
           email: req.body.email.toLocaleLowerCase(),
           password: encoded,
+          nickname: req.body.stdId,
           ip: req.ip,
           verified: false,
         });

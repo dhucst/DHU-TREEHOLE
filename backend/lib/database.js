@@ -36,8 +36,22 @@ exports.CommentSchema = new Schema({
   createTime: Number,
   content: String,
   post: String,
-  replyTo: String,
+  replies: [String],
+  isPrivate: Boolean,
   isAnonymous: Boolean,
+  isDeleted: Boolean,
+});
+
+exports.ReplySchema = new Schema({
+  owner: String,
+  createTime: Number,
+  post: String,
+  comment: String,
+  content: String,
+  replyTo: String,
+  isPrivate: Boolean,
+  isAnonymous: Boolean,
+  isDeleted: Boolean,
 });
 
 exports.FakerSchema = new Schema({
