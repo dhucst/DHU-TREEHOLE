@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Commernt = require('../models/comments').Comment;
+const Comment = require('../models/comments').Comment;
 const Post = require('../models/posts').Post;
 const Reply = require('../models/replies').Reply;
 
@@ -23,7 +23,7 @@ router.post('/new', (req, res, next) => {
       return;
     }
     const time = new Date().getTime();
-    const comment = Commernt({
+    const comment = Comment({
       owner: req.user._id,
       createTime: time,
       content: req.body.content,
@@ -62,7 +62,7 @@ router.post('/new', (req, res, next) => {
 });
 
 router.post('/:commentId/reply', (req, res, next) => {
-  Commernt.findById(req.params.commentId, (err, comment) => {
+  Comment.findById(req.params.commentId, (err, comment) => {
     if (err || !comment) {
 
       next();
@@ -110,7 +110,7 @@ router.post('/:commentId/reply', (req, res, next) => {
 
 router.route('/:commentId')
   .delete((req, res, next) => {
-    Commernt.findById(req.params.commentId, (err, comment) => {
+    Comment.findById(req.params.commentId, (err, comment) => {
       if (err || !comment) {
         next();
         return;
@@ -125,6 +125,39 @@ router.route('/:commentId')
       }
       comment.isDeleted = true;
       comment.save((err) => {
+        if (err) {
+          res.status(500);
+          res.json({
+            success: false,
+            msg: 'Server errors',
+          });
+        } else {
+          res.json({
+            success: true,
+            msg: "Success",
+          });
+        }
+      })
+    });
+  });
+
+router.route('/:replyId')
+  .delete((req, res, next) => {
+    Reply.findById(req.params.replyId, (err, reply) => {
+      if (err || !reply) {
+        next();
+        return;
+      }
+      if (req.user._id !== reply.owner) {
+        res.status(403);
+        res.json({
+          success: false,
+          msg: 'Forbidden',
+        });
+        return;
+      }
+      reply.isDeleted = true;
+      reply.save((err) => {
         if (err) {
           res.status(500);
           res.json({
