@@ -26,6 +26,7 @@ router.post('/new', (req, res) => {
     comments: [],
     background: null,
     isAnonymous: req.body.isAnonymous,
+    isDeleted: false,
   });
   post.save((err) => {
     if (err){
@@ -60,7 +61,8 @@ router.route('/:postId')
         });
         return;
       }
-      Post.deleteOne({ _id: post._id }, (err) => {
+      post.isDeleted = true;
+      post.save((err) => {
         if (err){
           res.status(500);
           res.json({

@@ -29,6 +29,7 @@ exports.PostSchema = new Schema({
   comments: [String],
   background: String,
   isAnonymous: Boolean,
+  isDeleted: Boolean,
 });
 
 exports.CommentSchema = new Schema({
