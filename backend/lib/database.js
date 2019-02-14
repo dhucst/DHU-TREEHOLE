@@ -31,6 +31,7 @@ exports.PostSchema = new Schema({
   background: String,
   isAnonymous: Boolean,
   isDeleted: Boolean,
+  isSharable: Boolean,
 });
 
 exports.CommentSchema = new Schema({
@@ -69,6 +70,13 @@ exports.PictureSchema = new Schema({
   type: String,
   hash: String,
   ref: Number,
+});
+
+exports.ShareShcema = new Schema({
+  owner: String,
+  createTime: Number,
+  post: String,
+  visitorsNum: Number,
 });
 
 mongoose.connection.on('connected', () => {
