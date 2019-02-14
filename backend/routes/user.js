@@ -143,6 +143,61 @@ router.post('/findpwd', (req, res) => {
   });
 });
 
+router.put('/pwd', (req, res, next) => {
+  const token = Buffer.from(req.body.token, 'base64').toString();
+  console.log(token);
+  jwt.verify(token, process.env.mailTokenSecret, (err, decoded) => {
+    console.log(decoded);
+    if (err || decoded.doWhat !== 'putPwd') {
+      next();
+      return;
+    }
+    User.findById(decoded._id, (err, user) => {
+      if (err || !user) {
+        next();
+        return;
+      }
+      bcrypt.hash(req.body.password, parseInt(process.env.saltRounds, 10), (err, encoded) => {
+        if (err) {
+          res.status(500);
+          res.json({
+            success: false,
+            msg: 'Failed.',
+            token: null,
+          });
+          return;
+        }
+        user.password = encoded;
+        user.save((err) => {
+          if (err) {
+            res.status(500);
+            res.json({
+              success: false,
+              msg: 'Failed.',
+              token: null,
+            });
+            return;
+          }
+          const tmp = {
+            _id: user._id,
+            stdId: user.stdId,
+            email: user.email,
+          };
+          jwt.sign(tmp, process.env.superSecret, {
+            expiresIn: 60 * 60 * 24,
+          }, (err, token) => {
+            res.json({
+              success: true,
+              msg: 'success',
+              token,
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
 router.all('*', (req, res) => {
   res.status(404);
   res.json({

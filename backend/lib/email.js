@@ -20,7 +20,7 @@ function sendVerifyEmailForSignUp(user) {
 }
 
 function sendVerifyEmailForFindPwd(user) {
-  user.doWhat = 'findPwd';
+  user.doWhat = 'putPwd';
   const token = jwt.sign(user, process.env.mailTokenSecret, {
     expiresIn: 60 * 15,  //有效时间15分钟
   });

@@ -185,7 +185,7 @@ router.get('/:postId/comment', (req, res, next) => {
   const limit = req.query.limit ? req.query.limit : 5;
   Comment.find({
     post: req.params.postId,
-    //isDeleted: false,
+    isDeleted: false,
   }, 'owner createTime content replies isPrivate isAnonymous')
     .skip((pages - 1) * limit)
     .limit(limit)
