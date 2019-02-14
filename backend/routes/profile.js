@@ -65,6 +65,32 @@ router.route('/:stdId')
     });
   });
 
+router.put('/collections', (req, res, next) => {
+  User.findById(req.user._id, (err, user) => {
+    if (err || !user) {
+      next();
+      return;
+    }
+    if (!user.collections.includes(req.body.postId)) user.collections.push(req.body.postId);
+    else user.collections.remove(req.body.postId);
+    user.save((err) => {
+      if (err) {
+        res.status(500);
+        res.json({
+          success: true,
+          msg: 'Server Errors',
+        });
+        return;
+      }
+      res.json({
+        success: true,
+        msg: user.collections.includes(req.body.postId) ? 'Add collection successfully.' : 'Remove collection successfully',
+        collected: user.collections.includes(req.body.postId),
+      });
+    });
+  });
+});
+
 router.all('*', (req, res) => {
   res.status(404);
   res.json({
