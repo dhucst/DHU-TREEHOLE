@@ -15,6 +15,7 @@ exports.UserSchema = new Schema({
   verified: Boolean,
   password: String,
   posts: [String],
+  collection: [String],
   lastLogin: Number,
   ip: String,
 });
