@@ -178,6 +178,10 @@ router.put('/:postId/approve', (req, res, next) => {
   });
 });
 
+router.get('/post/:postId/comment', (req, res, next) => {
+
+});
+
 router.all('*', (req, res) => {
   res.status(404);
   res.json({

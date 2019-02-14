@@ -2,7 +2,6 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/users').User;
-const ifStdIdEmailValid = require('../models/users').ifStdIdEmailValid;
 const sendVerifyEmailForSignUp = require('../lib/email').sendVerifyEmailForSignUp;
 const sendVerifyEmailForFindPwd = require('../lib/email').sendVerifyEmailForFindPwd;
 
@@ -10,7 +9,7 @@ const router = express.Router();
 
 
 router.post('/signup', (req, res) => {
-  ifStdIdEmailValid(req.body.stdId, req.body.email.toLocaleLowerCase(), (err, flag) => {
+  User.ifStdIdEmailValid(req.body.stdId, req.body.email.toLocaleLowerCase(), (err, flag) => {
     if (err) {
       res.status(500);
       res.json({

@@ -2,7 +2,6 @@ const express = require('express');
 const OSS = require('../lib/oss');
 const router = express.Router();
 const Picture = require('../models/pictures').Picture;
-const ifHashExist = require('../models/pictures').ifHashExist;
 const computeHash = require('../lib/utils').computeHash;
 const multer = require('multer');
 const fs = require('fs');
@@ -42,7 +41,7 @@ router.all('*', (req, res, next) => {
 });
 
 router.post('/upload', (req, res) => {
-  ifHashExist(req.file.hash, (err, picture) => {
+  Picture.ifHashExist(req.file.hash, (err, picture) => {
     if (!picture) {
       const newPicture = Picture({
         format: req.body.format,
@@ -97,7 +96,7 @@ router.post('/upload', (req, res) => {
 });
 
 router.get('/hash', (req, res) => {
-  ifHashExist(req.query.hash, (err, flag) => {
+  Picture.ifHashExist(req.query.hash, (err, flag) => {
     if (err) {
       res.status(500);
       res.json({
