@@ -1,5 +1,6 @@
 const express = require('express');
 const Post = require('../models/posts').Post;
+const Comment = require('../models/comments').Comment;
 const router =  express.Router();
 
 router.all('*', (req, res, next) => {
@@ -178,8 +179,27 @@ router.put('/:postId/approve', (req, res, next) => {
   });
 });
 
-router.get('/post/:postId/comment', (req, res, next) => {
-
+router.get('/:postId/comment', (req, res, next) => {
+  console.log('get');
+  const pages = req.query.pages ? req.query.pages : 1;
+  const limit = req.query.limit ? req.query.limit : 5;
+  Comment.find({
+    post: req.params.postId,
+    //isDeleted: false,
+  }, 'owner createTime content replies isPrivate isAnonymous')
+    .skip((pages - 1) * limit)
+    .limit(limit)
+    .exec((err, comments) => {
+      if (err || !comments.length){
+        next();
+        return;
+      }
+      res.json({
+        success: true,
+        msg: 'Success!',
+        comments,
+      });
+    });
 });
 
 router.all('*', (req, res) => {
