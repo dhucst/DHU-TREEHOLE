@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 const mailTransport = nodemailer.createTransport(process.env.mailConfig);
-
+const mailService = {};
 function sendVerifyEmailForSignUp(user) {
   user.doWhat = 'verifyEmail';
   const token = jwt.sign(user, process.env.mailTokenSecret, {
@@ -35,5 +35,7 @@ function sendVerifyEmailForFindPwd(user) {
 
 
 
-exports.sendVerifyEmailForSignUp = sendVerifyEmailForSignUp;
-exports.sendVerifyEmailForFindPwd = sendVerifyEmailForFindPwd;
+mailService.sendVerifyEmailForSignUp = sendVerifyEmailForSignUp;
+mailService.sendVerifyEmailForFindPwd = sendVerifyEmailForFindPwd;
+
+exports.mailService = mailService;

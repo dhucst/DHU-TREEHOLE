@@ -2,8 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/users').User;
-const sendVerifyEmailForSignUp = require('../lib/email').sendVerifyEmailForSignUp;
-const sendVerifyEmailForFindPwd = require('../lib/email').sendVerifyEmailForFindPwd;
+const mailService = require('../lib/email').mailService;
 
 const router = express.Router();
 
@@ -60,7 +59,7 @@ router.post('/signup', (req, res) => {
             stdId: user.stdId,
             email: user.email,
           };
-          sendVerifyEmailForSignUp(tmp);
+          mailService.sendVerifyEmailForSignUp(tmp);
           jwt.sign(tmp, process.env.superSecret, {
             expiresIn: 60 * 60 * 24,
           }, (err, token) => {
@@ -136,7 +135,7 @@ router.post('/findpwd', (req, res) => {
       stdId: user.stdId,
       email: user.email,
     };
-    sendVerifyEmailForFindPwd(tmp);
+    mailService.sendVerifyEmailForFindPwd(tmp);
     res.json({
       success: true,
       msg: '邮件已发送。'
