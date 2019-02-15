@@ -3,8 +3,10 @@ const multer = require('multer');
 const fs = require('fs');
 
 const upload = multer({ dest: './static/temp' });
+const getByPages = require('../lib/utils').getByPages;
 const OSS = require('../lib/oss');
 const User = require('../models/users').User;
+const Post = require('../models/posts').Post;
 
 const router = express.Router();
 
@@ -65,7 +67,8 @@ router.route('/:stdId')
     });
   });
 
-router.put('/collections', (req, res, next) => {
+router.route('/collections')
+  .put((req, res, next) => {
   User.findById(req.user._id, (err, user) => {
     if (err || !user) {
       next();
@@ -89,7 +92,37 @@ router.put('/collections', (req, res, next) => {
       });
     });
   });
-});
+})
+  .get((req, res, next) => {
+    User.findById(req.user._id, 'collections', (err, user) => {
+      if (err){
+        res.status(500);
+        res.json({
+          success: false,
+          msg: 'Server Errors.'
+        });
+        return;
+      }
+      const pages = req.query.pages ? req.query.pages : 1;
+      const limit = req.query.limit ? req.query.limit : 10;
+      const newPostIdArray = getByPages(user.collections, limit, pages);
+      Post.getAbstractsByIdArray(newPostIdArray, (err, results) => {
+        if (err) {
+          res.status(500);
+          res.json({
+            success: false,
+            msg: 'Server Errors.'
+          });
+          return;
+        }
+        res.json({
+          success: true,
+          msg: 'Get success!',
+          collections: results,
+        });
+      });
+    })
+  });
 
 router.all('*', (req, res) => {
   res.status(404);

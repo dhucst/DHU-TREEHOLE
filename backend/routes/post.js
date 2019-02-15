@@ -180,7 +180,6 @@ router.put('/:postId/approve', (req, res, next) => {
 });
 
 router.get('/:postId/comment', (req, res, next) => {
-  console.log('get');
   const pages = req.query.pages ? req.query.pages : 1;
   const limit = req.query.limit ? req.query.limit : 5;
   Comment.find({

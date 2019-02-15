@@ -1,3 +1,5 @@
+const async = require('async');
+
 const mongoose = require('../lib/database').database_conn;
 const PostSchema = require('../lib/database').PostSchema;
 
@@ -5,11 +7,16 @@ const PostModel = mongoose.model('Post', PostSchema);
 
 function getAbstractById(postId, callback) {
   PostModel.findById(postId, (err, post) => {
-    if (err || !post) {
-      callback(err ? err : null, null);
+    if (err || !post || post.isDeleted) {
+      const tmp = {
+        _id: postId,
+        error: 'Unavailable!'
+      };
+      callback(null, tmp);
       return;
     }
     const tmp = {
+      _id: postId,
       owner: post.owner,
       createTime: post.createTime,
       content: post.content,
@@ -24,6 +31,21 @@ function getAbstractById(postId, callback) {
   });
 }
 
-PostModel.getAbstractById = getAbstractById;
+function getAbstractsByIdArray(postIdArray, callback) {
+  async.times(postIdArray.length, (n, next) => {
+    getAbstractById(postIdArray[n], (err, abstract) => {
+      if (!abstract) {
+        next(err, );
+        return;
+      }
+      next(err, abstract);
+    });
+  },
+    (err, abstracts) => {
+      callback(null, abstracts);
+    });
+}
+
+PostModel.getAbstractsByIdArray = getAbstractsByIdArray;
 
 exports.Post = PostModel;
