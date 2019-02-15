@@ -67,6 +67,35 @@ router.route('/:stdId')
     });
   });
 
+router.get('/:stdId/posts', (req, res, next) => {
+  User.findOne({
+    stdId: req.params.stdId,
+  }, 'posts', (err, user) => {
+    if (err || !user) {
+      next();
+      return;
+    }
+    const pages = req.query.pages ? req.query.pages : 1;
+    const limit = req.query.limit ? req.query.limit : 10;
+    const newPostIdArray = getByPages(user.posts, limit, pages);
+    Post.getAbstractsByIdArray(newPostIdArray, (err, results) => {
+      if (err) {
+        res.status(500);
+        res.json({
+          success: false,
+          msg: 'Server Errors.'
+        });
+        return;
+      }
+      res.json({
+        success: true,
+        msg: 'Get success!',
+        collections: results,
+      });
+    });
+  })
+});
+
 router.route('/collections')
   .put((req, res, next) => {
   User.findById(req.user._id, (err, user) => {
