@@ -15,4 +15,13 @@ function computeHash(filePath, callback) {
   });
 }
 
+function getByPages(array, limit, page) {
+  let newArray = [];
+  if (array.length >= limit * page) {
+    newArray = array.slice(limit * (page - 1), limit * page);
+  }
+  return newArray;
+}
+
+exports.getByPages = getByPages;
 exports.computeHash = computeHash;

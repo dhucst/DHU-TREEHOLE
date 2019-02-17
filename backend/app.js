@@ -18,6 +18,7 @@ const profileRouter = require('./routes/profile');
 const verifyRouter = require('./routes/verify');
 const postRouter = require('./routes/post');
 const pictureRouter = require('./routes/picture');
+const commentRouter = require('./routes/comment');
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use('/users', users);
 app.use('/verify', verifyRouter);
 app.use('/post', postRouter);
 app.use('/picture', pictureRouter);
+app.use('/comment', commentRouter);
 
 // catch 404 and forward to error handler
 /* app.use((req, res, next) => {

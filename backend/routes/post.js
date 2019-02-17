@@ -1,5 +1,7 @@
 const express = require('express');
 const Post = require('../models/posts').Post;
+const Comment = require('../models/comments').Comment;
+const User = require('../models/users').User;
 const router =  express.Router();
 
 router.all('*', (req, res, next) => {
@@ -15,34 +17,49 @@ router.all('*', (req, res, next) => {
 });
 
 router.post('/new', (req, res) => {
-  const time = new Date().getTime();
-  const post = new Post({
-    owner: req.user._id,
-    createTime: time,
-    updateTime: time,
-    content: req.body.content,
-    pictures: req.body.pictures,
-    approves: [],
-    comments: [],
-    background: null,
-    isAnonymous: req.body.isAnonymous,
+  User.findById(req.user._id, (err, user) => {
+    const time = new Date().getTime();
+    const post = new Post({
+      owner: req.user._id,
+      createTime: time,
+      updateTime: time,
+      content: req.body.content,
+      pictures: req.body.pictures,
+      approves: [],
+      comments: [],
+      background: null,
+      isAnonymous: req.body.isAnonymous,
+      isDeleted: false,
+    });
+    post.save((err) => {
+      if (err){
+        res.status(500);
+        res.json({
+          success: false,
+          msg: 'Server errors',
+          id: null,
+        });
+        return;
+      }
+      user.posts.push(post._id);
+      user.save((err) => {
+        if (err) {
+          res.status(500);
+          res.json({
+            success: false,
+            msg: 'Server errors',
+            id: null,
+          });
+          return;
+        }
+        res.json({
+          success: true,
+          msg: 'Success!',
+          id: post._id,
+        });
+      });
+    })
   });
-  post.save((err) => {
-    if (err){
-      res.status(500);
-      res.json({
-        success: false,
-        msg: 'Server errors',
-        id: null,
-      });
-      return;
-    }
-    res.json({
-      success: true,
-      msg: 'Success!',
-      id: post._id,
-      });
-  })
 });
 
 router.route('/:postId')
@@ -60,7 +77,8 @@ router.route('/:postId')
         });
         return;
       }
-      Post.deleteOne({ _id: post._id }, (err) => {
+      post.isDeleted = true;
+      post.save((err) => {
         if (err){
           res.status(500);
           res.json({
@@ -174,6 +192,28 @@ router.put('/:postId/approve', (req, res, next) => {
       });
     });
   });
+});
+
+router.get('/:postId/comment', (req, res, next) => {
+  const pages = req.query.pages ? req.query.pages : 1;
+  const limit = req.query.limit ? req.query.limit : 5;
+  Comment.find({
+    post: req.params.postId,
+    isDeleted: false,
+  }, 'owner createTime content replies isPrivate isAnonymous')
+    .skip((pages - 1) * limit)
+    .limit(limit)
+    .exec((err, comments) => {
+      if (err || !comments.length){
+        next();
+        return;
+      }
+      res.json({
+        success: true,
+        msg: 'Success!',
+        comments,
+      });
+    });
 });
 
 router.all('*', (req, res) => {

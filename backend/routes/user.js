@@ -2,15 +2,13 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/users').User;
-const ifStdIdEmailValid = require('../models/users').ifStdIdEmailValid;
-const sendVerifyEmailForSignUp = require('../lib/email').sendVerifyEmailForSignUp;
-const sendVerifyEmailForFindPwd = require('../lib/email').sendVerifyEmailForFindPwd;
+const mailService = require('../lib/email').mailService;
 
 const router = express.Router();
 
 
 router.post('/signup', (req, res) => {
-  ifStdIdEmailValid(req.body.stdId, req.body.email.toLocaleLowerCase(), (err, flag) => {
+  User.ifStdIdEmailValid(req.body.stdId, req.body.email.toLocaleLowerCase(), (err, flag) => {
     if (err) {
       res.status(500);
       res.json({
@@ -42,6 +40,8 @@ router.post('/signup', (req, res) => {
           stdId: req.body.stdId,
           email: req.body.email.toLocaleLowerCase(),
           password: encoded,
+          nickname: req.body.stdId,
+          collection: [],
           ip: req.ip,
           verified: false,
         });
@@ -60,7 +60,7 @@ router.post('/signup', (req, res) => {
             stdId: user.stdId,
             email: user.email,
           };
-          sendVerifyEmailForSignUp(tmp);
+          mailService.sendVerifyEmailForSignUp(tmp);
           jwt.sign(tmp, process.env.superSecret, {
             expiresIn: 60 * 60 * 24,
           }, (err, token) => {
@@ -136,10 +136,65 @@ router.post('/findpwd', (req, res) => {
       stdId: user.stdId,
       email: user.email,
     };
-    sendVerifyEmailForFindPwd(tmp);
+    mailService.sendVerifyEmailForFindPwd(tmp);
     res.json({
       success: true,
       msg: '邮件已发送。'
+    });
+  });
+});
+
+router.put('/pwd', (req, res, next) => {
+  const token = Buffer.from(req.body.token, 'base64').toString();
+  console.log(token);
+  jwt.verify(token, process.env.mailTokenSecret, (err, decoded) => {
+    console.log(decoded);
+    if (err || decoded.doWhat !== 'putPwd') {
+      next();
+      return;
+    }
+    User.findById(decoded._id, (err, user) => {
+      if (err || !user) {
+        next();
+        return;
+      }
+      bcrypt.hash(req.body.password, parseInt(process.env.saltRounds, 10), (err, encoded) => {
+        if (err) {
+          res.status(500);
+          res.json({
+            success: false,
+            msg: 'Failed.',
+            token: null,
+          });
+          return;
+        }
+        user.password = encoded;
+        user.save((err) => {
+          if (err) {
+            res.status(500);
+            res.json({
+              success: false,
+              msg: 'Failed.',
+              token: null,
+            });
+            return;
+          }
+          const tmp = {
+            _id: user._id,
+            stdId: user.stdId,
+            email: user.email,
+          };
+          jwt.sign(tmp, process.env.superSecret, {
+            expiresIn: 60 * 60 * 24,
+          }, (err, token) => {
+            res.json({
+              success: true,
+              msg: 'success',
+              token,
+            });
+          });
+        });
+      });
     });
   });
 });

@@ -24,5 +24,6 @@ function ifStdIdEmailValid(stdId, Email, callback) {
   });
 }
 
+UserModel.ifStdIdEmailValid = ifStdIdEmailValid;
+
 exports.User = UserModel;
-exports.ifStdIdEmailValid = ifStdIdEmailValid;

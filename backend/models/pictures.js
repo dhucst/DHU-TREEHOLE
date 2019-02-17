@@ -10,5 +10,6 @@ function ifHashExist(hash, callback) {
   });
 }
 
+PictureModel.ifHashExist = ifHashExist;
+
 exports.Picture = PictureModel;
-exports.ifHashExist = ifHashExist;
