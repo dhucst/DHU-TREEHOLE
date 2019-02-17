@@ -17,7 +17,7 @@ function computeHash(filePath, callback) {
 
 function getByPages(array, limit, page) {
   let newArray = [];
-  if (arra.length >= limit * page) {
+  if (array.length >= limit * page) {
     newArray = array.slice(limit * (page - 1), limit * page);
   }
   return newArray;
