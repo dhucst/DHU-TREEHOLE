@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const mongoosastic = require('mongoosastic');
+
 
 const DB_URL = 'mongodb://localhost:27017/dhu_treehole';
 
@@ -20,7 +22,7 @@ exports.UserSchema = new Schema({
   ip: String,
 });
 
-exports.PostSchema = new Schema({
+const PostSchema = new Schema({
   owner: String,
   createTime: Number,
   updateTime: Number,
@@ -33,6 +35,13 @@ exports.PostSchema = new Schema({
   isDeleted: Boolean,
   isSharable: Boolean,
 });
+
+PostSchema.plugin(mongoosastic, {
+  hosts: [
+    'localhost:9200'
+  ]});
+
+exports.PostSchema = PostSchema;
 
 exports.CommentSchema = new Schema({
   owner: String,

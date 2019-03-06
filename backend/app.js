@@ -1,6 +1,7 @@
 require('dotenv').config();
 require('serve-favicon');
 require('./lib/database');
+require('./lib/elasticsearch');
 require('./lib/oss');
 require('./lib/email');
 const express = require('express');

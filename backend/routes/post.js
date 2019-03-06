@@ -1,4 +1,5 @@
 const express = require('express');
+const ES = require('../lib/elasticsearch');
 const Post = require('../models/posts').Post;
 const Comment = require('../models/comments').Comment;
 const User = require('../models/users').User;
@@ -214,6 +215,42 @@ router.get('/:postId/comment', (req, res, next) => {
         comments,
       });
     });
+});
+
+router.get('/search', (req, res, next) => {
+  const pages = req.query.pages ? req.query.pages : 1;
+  const limit = req.query.limit ? req.query.limit : 10;
+  ES.search({
+    index: 'posts',
+    body: {
+      from: limit * (pages - 1),
+      size: limit,
+      query: {
+        bool:{
+          must: [
+            {match: {content: req.query.keyword}},
+            {match: {isDeleted: 'false'}}
+          ]
+        }
+      }
+    }
+  }).then(function (result) {
+    let hits = result.hits.hits;
+    for(let i = 0; i < hits.length; i++) {
+      if (hits[i]._source.isAnonymous) {
+        hits[i]._source.owner = 'Anonymous';
+      }
+    }
+    res.json({
+      success: true,
+      data: hits,
+    });
+  }, function (err) {
+    if(err){
+      next();
+    }
+  });
+
 });
 
 router.all('*', (req, res) => {
